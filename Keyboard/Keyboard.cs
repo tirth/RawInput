@@ -6,7 +6,7 @@ namespace Keyboard;
 
 public partial class Keyboard : Form
 {
-    private readonly RawInput.RawInput _rawinput;
+    private readonly RawInput _rawInput;
 
     const bool CaptureOnlyInForeground = true;
     // Todo: add checkbox to form when checked/uncheck create method to call that does the same as Keyboard ctor 
@@ -16,12 +16,12 @@ public partial class Keyboard : Form
         InitializeComponent();
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        _rawinput = new RawInput.RawInput(Handle, CaptureOnlyInForeground);
+        _rawInput = new RawInput(Handle, CaptureOnlyInForeground);
 
-        _rawinput.AddMessageFilter();   // Adding a message filter will cause keypresses to be handled
+        _rawInput.AddMessageFilter();   // Adding a message filter will cause keypresses to be handled
         Win32.DeviceAudit();            // Writes a file DeviceAudit.txt to the current directory
 
-        _rawinput.KeyPressed += OnKeyPressed;
+        _rawInput.KeyPressed += OnKeyPressed;
     }
 
     private void OnKeyPressed(object sender, RawInputEventArg e)
@@ -31,7 +31,7 @@ public partial class Keyboard : Form
         lbName.Text = e.KeyPressEvent.DeviceName;
         lbDescription.Text = e.KeyPressEvent.Name;
         lbKey.Text = e.KeyPressEvent.VKey.ToString(CultureInfo.InvariantCulture);
-        lbNumKeyboards.Text = _rawinput.NumberOfKeyboards.ToString(CultureInfo.InvariantCulture);
+        lbNumKeyboards.Text = _rawInput.NumberOfKeyboards.ToString(CultureInfo.InvariantCulture);
         lbVKey.Text = e.KeyPressEvent.VKeyName;
         lbSource.Text = e.KeyPressEvent.Source;
         lbKeyPressState.Text = e.KeyPressEvent.KeyPressState;
@@ -50,14 +50,13 @@ public partial class Keyboard : Form
 
     private void Keyboard_FormClosing(object sender, FormClosingEventArgs e)
     {
-        _rawinput.KeyPressed -= OnKeyPressed;
+        _rawInput.KeyPressed -= OnKeyPressed;
     }
 
     private static void CurrentDomain_UnhandledException(Object sender, UnhandledExceptionEventArgs e)
     {
-        var ex = e.ExceptionObject as Exception;
-
-        if (null == ex) return;
+        if (e.ExceptionObject is not Exception ex) 
+            return;
 
         // Log this error. Logging the exception doesn't correct the problem but at least now
         // you may have more insight as to why the exception is being thrown.

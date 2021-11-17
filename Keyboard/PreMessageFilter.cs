@@ -1,4 +1,6 @@
-﻿namespace RawInput;
+﻿using RawInput;
+
+namespace Keyboard;
 
 public class PreMessageFilter : IMessageFilter
 {

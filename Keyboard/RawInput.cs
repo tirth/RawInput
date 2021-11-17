@@ -1,39 +1,26 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using RawInput;
 
-namespace RawInput;
+namespace Keyboard;
 
 public class RawInput : NativeWindow
 {
-    static RawKeyboard _keyboardDriver;
+    private readonly RawKeyboard _keyboardDriver;
+
+    public int NumberOfKeyboards
+        => _keyboardDriver.NumberOfKeyboards;
+
     readonly IntPtr _devNotifyHandle;
-    static readonly Guid DeviceInterfaceHid = new Guid("4D1E55B2-F16F-11CF-88CB-001111000030");
-    private PreMessageFilter _filter;
+
+    static readonly Guid DeviceInterfaceHid = new("4D1E55B2-F16F-11CF-88CB-001111000030");
+
+    private PreMessageFilter? _filter;
 
     public event RawKeyboard.DeviceEventHandler KeyPressed
     {
         add { _keyboardDriver.KeyPressed += value; }
         remove { _keyboardDriver.KeyPressed -= value; }
-    }
-
-    public int NumberOfKeyboards
-    {
-        get { return _keyboardDriver.NumberOfKeyboards; }
-    }
-
-    public void AddMessageFilter()
-    {
-        if (null != _filter) return;
-
-        _filter = new PreMessageFilter();
-        Application.AddMessageFilter(_filter);
-    }
-
-    private void RemoveMessageFilter()
-    {
-        if (null == _filter) return;
-
-        Application.RemoveMessageFilter(_filter);
     }
 
     public RawInput(IntPtr parentHandle, bool captureOnlyInForeground)
@@ -43,6 +30,23 @@ public class RawInput : NativeWindow
         _keyboardDriver = new RawKeyboard(parentHandle, captureOnlyInForeground);
         _keyboardDriver.EnumerateDevices();
         _devNotifyHandle = RegisterForDeviceNotifications(parentHandle);
+    }
+
+    public void AddMessageFilter()
+    {
+        if (_filter != null)
+            return;
+
+        _filter = new PreMessageFilter();
+        Application.AddMessageFilter(_filter);
+    }
+
+    private void RemoveMessageFilter()
+    {
+        if (_filter == null)
+            return;
+
+        Application.RemoveMessageFilter(_filter);
     }
 
     static IntPtr RegisterForDeviceNotifications(IntPtr parent)
@@ -58,7 +62,7 @@ public class RawInput : NativeWindow
         {
             mem = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(BroadcastDeviceInterface)));
             Marshal.StructureToPtr(bdi, mem, false);
-            usbNotifyHandle = Win32.RegisterDeviceNotification(parent, mem, DeviceNotification.DEVICE_NOTIFY_WINDOW_HANDLE);
+            usbNotifyHandle = Win32Helpers.RegisterDeviceNotification(parent, mem, DeviceNotification.DEVICE_NOTIFY_WINDOW_HANDLE);
         }
         catch (Exception e)
         {
@@ -101,7 +105,7 @@ public class RawInput : NativeWindow
 
     ~RawInput()
     {
-        Win32.UnregisterDeviceNotification(_devNotifyHandle);
+        Win32Helpers.UnregisterDeviceNotification(_devNotifyHandle);
         RemoveMessageFilter();
     }
 }

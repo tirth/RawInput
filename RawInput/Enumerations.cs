@@ -23,7 +23,7 @@ internal enum RawInputDeviceInfo : uint
     PREPARSEDDATA = 0x20000005
 }
 
-enum BroadcastDeviceType
+public enum BroadcastDeviceType
 {
     DBT_DEVTYP_OEM = 0,
     DBT_DEVTYP_DEVNODE = 1,
@@ -34,7 +34,7 @@ enum BroadcastDeviceType
     DBT_DEVTYP_HANDLE = 6,
 }
 
-enum DeviceNotification
+public enum DeviceNotification
 {
     DEVICE_NOTIFY_WINDOW_HANDLE = 0x00000000,           // The hRecipient parameter is a window handle
     DEVICE_NOTIFY_SERVICE_HANDLE = 0x00000001,          // The hRecipient parameter is a service status handle

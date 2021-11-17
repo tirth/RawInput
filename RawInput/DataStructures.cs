@@ -2,8 +2,6 @@
 
 namespace RawInput;
 
-// ReSharper disable FieldCanBeMadeReadOnly.Global
-
 [StructLayout(LayoutKind.Explicit)]
 public struct DeviceInfo
 {
@@ -11,7 +9,6 @@ public struct DeviceInfo
     public int Size;
     [FieldOffset(4)]
     public int Type;
-
     [FieldOffset(8)]
     public DeviceInfoMouse MouseInfo;
     [FieldOffset(8)]
@@ -19,24 +16,19 @@ public struct DeviceInfo
     [FieldOffset(8)]
     public DeviceInfoHid HIDInfo;
 
-    public override string ToString()
-    {
-        return string.Format("DeviceInfo\n Size: {0}\n Type: {1}\n", Size, Type);
-    }
+    public override string ToString() 
+        => $"DeviceInfo\n Size: {Size}\n Type: {Type}\n";
 }
 
 public struct DeviceInfoMouse
 {
-    // ReSharper disable MemberCanBePrivate.Global
     public uint Id;                         // Identifier of the mouse device
     public uint NumberOfButtons;            // Number of buttons for the mouse
     public uint SampleRate;                 // Number of data points per second.
     public bool HasHorizontalWheel;         // True is mouse has wheel for horizontal scrolling else false.
                                             // ReSharper restore MemberCanBePrivate.Global
-    public override string ToString()
-    {
-        return string.Format("MouseInfo\n Id: {0}\n NumberOfButtons: {1}\n SampleRate: {2}\n HorizontalWheel: {3}\n", Id, NumberOfButtons, SampleRate, HasHorizontalWheel);
-    }
+    public override string ToString() 
+        => $"MouseInfo\n Id: {Id}\n NumberOfButtons: {NumberOfButtons}\n SampleRate: {SampleRate}\n HorizontalWheel: {HasHorizontalWheel}\n";
 }
 
 public struct DeviceInfoKeyboard
@@ -48,16 +40,8 @@ public struct DeviceInfoKeyboard
     public uint NumberOfIndicators;         // Number of LED indicators on the keyboard
     public uint NumberOfKeysTotal;          // Total number of keys on the keyboard
 
-    public override string ToString()
-    {
-        return string.Format("DeviceInfoKeyboard\n Type: {0}\n SubType: {1}\n KeyboardMode: {2}\n NumberOfFunctionKeys: {3}\n NumberOfIndicators {4}\n NumberOfKeysTotal: {5}\n",
-                                                         Type,
-                                                         SubType,
-                                                         KeyboardMode,
-                                                         NumberOfFunctionKeys,
-                                                         NumberOfIndicators,
-                                                         NumberOfKeysTotal);
-    }
+    public override string ToString() 
+        => $"DeviceInfoKeyboard\n Type: {Type}\n SubType: {SubType}\n KeyboardMode: {KeyboardMode}\n NumberOfFunctionKeys: {NumberOfFunctionKeys}\n NumberOfIndicators {NumberOfIndicators}\n NumberOfKeysTotal: {NumberOfKeysTotal}\n";
 }
 
 public struct DeviceInfoHid
@@ -68,23 +52,17 @@ public struct DeviceInfoHid
     public ushort UsagePage;    // Top-level collection Usage page for the device
     public ushort Usage;        // Top-level collection Usage for the device
 
-    public override string ToString()
-    {
-        return string.Format("HidInfo\n VendorID: {0}\n ProductID: {1}\n VersionNumber: {2}\n UsagePage: {3}\n Usage: {4}\n", VendorID, ProductID, VersionNumber, UsagePage, Usage);
-    }
+    public override string ToString() 
+        => $"HidInfo\n VendorID: {VendorID}\n ProductID: {ProductID}\n VersionNumber: {VersionNumber}\n UsagePage: {UsagePage}\n Usage: {Usage}\n";
 }
 
-struct BroadcastDeviceInterface
+public struct BroadcastDeviceInterface
 {
-    // ReSharper disable NotAccessedField.Global
-    // ReSharper disable UnusedField.Compiler
     public int DbccSize;
     public BroadcastDeviceType BroadcastDeviceType;
     public int DbccReserved;
     public Guid DbccClassguid;
     public char DbccName;
-    // ReSharper restore NotAccessedField.Global
-    // ReSharper restore UnusedField.Compiler
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -120,10 +98,8 @@ public struct Rawinputheader
     public IntPtr hDevice;                  // A handle to the device generating the raw input data. 
     public IntPtr wParam;                   // RIM_INPUT 0 if input occurred while application was in the foreground else RIM_INPUTSINK 1 if it was not.
 
-    public override string ToString()
-    {
-        return string.Format("RawInputHeader\n dwType : {0}\n dwSize : {1}\n hDevice : {2}\n wParam : {3}", dwType, dwSize, hDevice, wParam);
-    }
+    public override string ToString() 
+        => $"RawInputHeader\n dwType : {dwType}\n dwSize : {dwSize}\n hDevice : {hDevice}\n wParam : {wParam}";
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -133,10 +109,8 @@ internal struct Rawhid
     public uint dwCount;
     public byte bRawData;
 
-    public override string ToString()
-    {
-        return string.Format("Rawhib\n dwSizeHid : {0}\n dwCount : {1}\n bRawData : {2}\n", dwSizHid, dwCount, bRawData);
-    }
+    public override string ToString() 
+        => $"Rawhid\n dwSizeHid : {dwSizHid}\n dwCount : {dwCount}\n bRawData : {bRawData}\n";
 }
 
 [StructLayout(LayoutKind.Explicit)]
@@ -170,11 +144,8 @@ internal struct Rawkeyboard
     public uint Message;                    // Corresponding Windows message for exmaple (WM_KEYDOWN, WM_SYASKEYDOWN etc)
     public uint ExtraInformation;           // The device-specific addition information for the event (seems to always be zero for keyboards)
 
-    public override string ToString()
-    {
-        return string.Format("Rawkeyboard\n Makecode: {0}\n Makecode(hex) : {0:X}\n Flags: {1}\n Reserved: {2}\n VKeyName: {3}\n Message: {4}\n ExtraInformation {5}\n",
-                                            Makecode, Flags, Reserved, VKey, Message, ExtraInformation);
-    }
+    public override string ToString() 
+        => $"Rawkeyboard\n Makecode: {Makecode}\n Makecode(hex) : {Makecode:X}\n Flags: {Flags}\n Reserved: {Reserved}\n VKeyName: {VKey}\n Message: {Message}\n ExtraInformation {ExtraInformation}\n";
 }
 
 [StructLayout(LayoutKind.Sequential)]
@@ -185,8 +156,6 @@ internal struct RawInputDevice
     internal RawInputDeviceFlags Flags;
     internal IntPtr Target;
 
-    public override string ToString()
-    {
-        return string.Format("{0}/{1}, flags: {2}, target: {3}", UsagePage, Usage, Flags, Target);
-    }
+    public override string ToString() 
+        => $"{UsagePage}/{Usage}, flags: {Flags}, target: {Target}";
 }

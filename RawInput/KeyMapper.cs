@@ -8,199 +8,198 @@ public static class KeyMapper
     // This mapping could be loading from file to allow mapping changes without a recompile
     public static string GetKeyName(int value)
     {
-        switch (value)
+        return value switch
         {
-            case 0x41: return "A";
-            case 0x6b: return "Add";
-            case 0x40000: return "Alt";
-            case 0x5d: return "Apps";
-            case 0xf6: return "Attn";
-            case 0x42: return "B";
-            case 8: return "Back";
-            case 0xa6: return "BrowserBack";
-            case 0xab: return "BrowserFavorites";
-            case 0xa7: return "BrowserForward";
-            case 0xac: return "BrowserHome";
-            case 0xa8: return "BrowserRefresh";
-            case 170: return "BrowserSearch";
-            case 0xa9: return "BrowserStop";
-            case 0x43: return "C";
-            case 3: return "Cancel";
-            case 20: return "Capital";
+            0x41 => "A",
+            0x6b => "Add",
+            0x40000 => "Alt",
+            0x5d => "Apps",
+            0xf6 => "Attn",
+            0x42 => "B",
+            8 => "Back",
+            0xa6 => "BrowserBack",
+            0xab => "BrowserFavorites",
+            0xa7 => "BrowserForward",
+            0xac => "BrowserHome",
+            0xa8 => "BrowserRefresh",
+            170 => "BrowserSearch",
+            0xa9 => "BrowserStop",
+            0x43 => "C",
+            3 => "Cancel",
+            20 => "Capital",
             //case 20:      return "CapsLock";
-            case 12: return "Clear";
-            case 0x20000: return "Control";
-            case 0x11: return "ControlKey";
-            case 0xf7: return "Crsel";
-            case 0x44: return "D";
-            case 0x30: return "D0";
-            case 0x31: return "D1";
-            case 50: return "D2";
-            case 0x33: return "D3";
-            case 0x34: return "D4";
-            case 0x35: return "D5";
-            case 0x36: return "D6";
-            case 0x37: return "D7";
-            case 0x38: return "D8";
-            case 0x39: return "D9";
-            case 110: return "Decimal";
-            case 0x2e: return "Delete";
-            case 0x6f: return "Divide";
-            case 40: return "Down";
-            case 0x45: return "E";
-            case 0x23: return "End";
-            case 13: return "Enter";
-            case 0xf9: return "EraseEof";
-            case 0x1b: return "Escape";
-            case 0x2b: return "Execute";
-            case 0xf8: return "Exsel";
-            case 70: return "F";
-            case 0x70: return "F1";
-            case 0x79: return "F10";
-            case 0x7a: return "F11";
-            case 0x7b: return "F12";
-            case 0x7c: return "F13";
-            case 0x7d: return "F14";
-            case 0x7e: return "F15";
-            case 0x7f: return "F16";
-            case 0x80: return "F17";
-            case 0x81: return "F18";
-            case 130: return "F19";
-            case 0x71: return "F2";
-            case 0x83: return "F20";
-            case 0x84: return "F21";
-            case 0x85: return "F22";
-            case 0x86: return "F23";
-            case 0x87: return "F24";
-            case 0x72: return "F3";
-            case 0x73: return "F4";
-            case 0x74: return "F5";
-            case 0x75: return "F6";
-            case 0x76: return "F7";
-            case 0x77: return "F8";
-            case 120: return "F9";
-            case 0x18: return "FinalMode";
-            case 0x47: return "G";
-            case 0x48: return "H";
-            case 0x15: return "HanguelMode";
+            12 => "Clear",
+            0x20000 => "Control",
+            0x11 => "ControlKey",
+            0xf7 => "Crsel",
+            0x44 => "D",
+            0x30 => "D0",
+            0x31 => "D1",
+            50 => "D2",
+            0x33 => "D3",
+            0x34 => "D4",
+            0x35 => "D5",
+            0x36 => "D6",
+            0x37 => "D7",
+            0x38 => "D8",
+            0x39 => "D9",
+            110 => "Decimal",
+            0x2e => "Delete",
+            0x6f => "Divide",
+            40 => "Down",
+            0x45 => "E",
+            0x23 => "End",
+            13 => "Enter",
+            0xf9 => "EraseEof",
+            0x1b => "Escape",
+            0x2b => "Execute",
+            0xf8 => "Exsel",
+            70 => "F",
+            0x70 => "F1",
+            0x79 => "F10",
+            0x7a => "F11",
+            0x7b => "F12",
+            0x7c => "F13",
+            0x7d => "F14",
+            0x7e => "F15",
+            0x7f => "F16",
+            0x80 => "F17",
+            0x81 => "F18",
+            130 => "F19",
+            0x71 => "F2",
+            0x83 => "F20",
+            0x84 => "F21",
+            0x85 => "F22",
+            0x86 => "F23",
+            0x87 => "F24",
+            0x72 => "F3",
+            0x73 => "F4",
+            0x74 => "F5",
+            0x75 => "F6",
+            0x76 => "F7",
+            0x77 => "F8",
+            120 => "F9",
+            0x18 => "FinalMode",
+            0x47 => "G",
+            0x48 => "H",
+            0x15 => "HanguelMode",
             //case 0x15:    return "HangulMode";
-            case 0x19: return "HanjaMode";
-            case 0x2f: return "Help";
-            case 0x24: return "Home";
-            case 0x49: return "I";
-            case 30: return "IMEAceept";
-            case 0x1c: return "IMEConvert";
-            case 0x1f: return "IMEModeChange";
-            case 0x1d: return "IMENonconvert";
-            case 0x2d: return "Insert";
-            case 0x4a: return "J";
-            case 0x17: return "JunjaMode";
-            case 0x4b: return "K";
+            0x19 => "HanjaMode",
+            0x2f => "Help",
+            0x24 => "Home",
+            0x49 => "I",
+            30 => "IMEAceept",
+            0x1c => "IMEConvert",
+            0x1f => "IMEModeChange",
+            0x1d => "IMENonconvert",
+            0x2d => "Insert",
+            0x4a => "J",
+            0x17 => "JunjaMode",
+            0x4b => "K",
             //case 0x15:    return "KanaMode";
             //case 0x19:    return "KanjiMode";
-            case 0xffff: return "KeyCode";
-            case 0x4c: return "L";
-            case 0xb6: return "LaunchApplication1";
-            case 0xb7: return "LaunchApplication2";
-            case 180: return "LaunchMail";
-            case 1: return "LButton";
-            case 0xa2: return "LControl";
-            case 0x25: return "Left";
-            case 10: return "LineFeed";
-            case 0xa4: return "LMenu";
-            case 160: return "LShift";
-            case 0x5b: return "LWin";
-            case 0x4d: return "M";
-            case 4: return "MButton";
-            case 0xb0: return "MediaNextTrack";
-            case 0xb3: return "MediaPlayPause";
-            case 0xb1: return "MediaPreviousTrack";
-            case 0xb2: return "MediaStop";
-            case 0x12: return "Menu";
+            0xffff => "KeyCode",
+            0x4c => "L",
+            0xb6 => "LaunchApplication1",
+            0xb7 => "LaunchApplication2",
+            180 => "LaunchMail",
+            1 => "LButton",
+            0xa2 => "LControl",
+            0x25 => "Left",
+            10 => "LineFeed",
+            0xa4 => "LMenu",
+            160 => "LShift",
+            0x5b => "LWin",
+            0x4d => "M",
+            4 => "MButton",
+            0xb0 => "MediaNextTrack",
+            0xb3 => "MediaPlayPause",
+            0xb1 => "MediaPreviousTrack",
+            0xb2 => "MediaStop",
+            0x12 => "Menu",
             // case 65536:  return "Modifiers";
-            case 0x6a: return "Multiply";
-            case 0x4e: return "N";
-            case 0x22: return "Next";
-            case 0xfc: return "NoName";
-            case 0: return "None";
-            case 0x90: return "NumLock";
-            case 0x60: return "NumPad0";
-            case 0x61: return "NumPad1";
-            case 0x62: return "NumPad2";
-            case 0x63: return "NumPad3";
-            case 100: return "NumPad4";
-            case 0x65: return "NumPad5";
-            case 0x66: return "NumPad6";
-            case 0x67: return "NumPad7";
-            case 0x68: return "NumPad8";
-            case 0x69: return "NumPad9";
-            case 0x4f: return "O";
-            case 0xdf: return "Oem8";
-            case 0xe2: return "OemBackslash";
-            case 0xfe: return "OemClear";
-            case 0xdd: return "OemCloseBrackets";
-            case 0xbc: return "OemComma";
-            case 0xbd: return "OemMinus";
-            case 0xdb: return "OemOpenBrackets";
-            case 190: return "OemPeriod";
-            case 220: return "OemPipe";
-            case 0xbb: return "Oemplus";
-            case 0xbf: return "OemQuestion";
-            case 0xde: return "OemQuotes";
-            case 0xba: return "OemSemicolon";
-            case 0xc0: return "Oemtilde";
-            case 80: return "P";
-            case 0xfd: return "Pa1";
+            0x6a => "Multiply",
+            0x4e => "N",
+            0x22 => "Next",
+            0xfc => "NoName",
+            0 => "None",
+            0x90 => "NumLock",
+            0x60 => "NumPad0",
+            0x61 => "NumPad1",
+            0x62 => "NumPad2",
+            0x63 => "NumPad3",
+            100 => "NumPad4",
+            0x65 => "NumPad5",
+            0x66 => "NumPad6",
+            0x67 => "NumPad7",
+            0x68 => "NumPad8",
+            0x69 => "NumPad9",
+            0x4f => "O",
+            0xdf => "Oem8",
+            0xe2 => "OemBackslash",
+            0xfe => "OemClear",
+            0xdd => "OemCloseBrackets",
+            0xbc => "OemComma",
+            0xbd => "OemMinus",
+            0xdb => "OemOpenBrackets",
+            190 => "OemPeriod",
+            220 => "OemPipe",
+            0xbb => "Oemplus",
+            0xbf => "OemQuestion",
+            0xde => "OemQuotes",
+            0xba => "OemSemicolon",
+            0xc0 => "Oemtilde",
+            80 => "P",
+            0xfd => "Pa1",
             // case 0x22:   return "PageDown";
             // case 0x21:   return "PageUp";
-            case 0x13: return "Pause";
-            case 250: return "Play";
-            case 0x2a: return "Print";
-            case 0x2c: return "PrintScreen";
-            case 0x21: return "Prior";
-            case 0xe5: return "ProcessKey";
-            case 0x51: return "Q";
-            case 0x52: return "R";
-            case 2: return "RButton";
-            case 0xa3: return "RControl";
+            0x13 => "Pause",
+            250 => "Play",
+            0x2a => "Print",
+            0x2c => "PrintScreen",
+            0x21 => "Prior",
+            0xe5 => "ProcessKey",
+            0x51 => "Q",
+            0x52 => "R",
+            2 => "RButton",
+            0xa3 => "RControl",
             //case 13:      return "Return";
-            case 0x27: return "Right";
-            case 0xa5: return "RMenu";
-            case 0xa1: return "RShift";
-            case 0x5c: return "RWin";
-            case 0x53: return "S";
-            case 0x91: return "Scroll";
-            case 0x29: return "Select";
-            case 0xb5: return "SelectMedia";
-            case 0x6c: return "Separator";
-            case 0x10000: return "Shift";
-            case 0x10: return "ShiftKey";
+            0x27 => "Right",
+            0xa5 => "RMenu",
+            0xa1 => "RShift",
+            0x5c => "RWin",
+            0x53 => "S",
+            0x91 => "Scroll",
+            0x29 => "Select",
+            0xb5 => "SelectMedia",
+            0x6c => "Separator",
+            0x10000 => "Shift",
+            0x10 => "ShiftKey",
             //case 0x2c:    return "Snapshot";
-            case 0x20: return "Space";
-            case 0x6d: return "Subtract";
-            case 0x54: return "T";
-            case 9: return "Tab";
-            case 0x55: return "U";
-            case 0x26: return "Up";
-            case 0x56: return "V";
-            case 0xae: return "VolumeDown";
-            case 0xad: return "VolumeMute";
-            case 0xaf: return "VolumeUp";
-            case 0x57: return "W";
-            case 0x58: return "X";
-            case 5: return "XButton1";
-            case 6: return "XButton2";
-            case 0x59: return "Y";
-            case 90: return "Z";
-            case 0xfb: return "Zoom";
-        }
-
-        return value.ToString(CultureInfo.InvariantCulture).ToUpper();
+            0x20 => "Space",
+            0x6d => "Subtract",
+            0x54 => "T",
+            9 => "Tab",
+            0x55 => "U",
+            0x26 => "Up",
+            0x56 => "V",
+            0xae => "VolumeDown",
+            0xad => "VolumeMute",
+            0xaf => "VolumeUp",
+            0x57 => "W",
+            0x58 => "X",
+            5 => "XButton1",
+            6 => "XButton2",
+            0x59 => "Y",
+            90 => "Z",
+            0xfb => "Zoom",
+            _ => value.ToString(CultureInfo.InvariantCulture).ToUpper(),
+        };
     }
 
     // If you prefer the virtualkey converted into a Microsoft virtualkey code use this
-    public static string GetMicrosoftKeyName(int virtualKey)
-    {
-        return new KeysConverter().ConvertToString(virtualKey);
-    }
+    //public static string GetMicrosoftKeyName(int virtualKey)
+    //{
+    //    return new KeysConverter().ConvertToString(virtualKey);
+    //}
 }
