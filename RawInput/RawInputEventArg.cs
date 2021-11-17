@@ -1,14 +1,11 @@
-﻿using System;
+﻿namespace RawInput;
 
-namespace RawInput_dll
+public class RawInputEventArg : EventArgs
 {
-    public class RawInputEventArg : EventArgs
+    public RawInputEventArg(KeyPressEvent arg)
     {
-        public RawInputEventArg(KeyPressEvent arg)
-        {
-            KeyPressEvent = arg;
-        }
-        
-        public KeyPressEvent KeyPressEvent { get; private set; }
+        KeyPressEvent = arg;
     }
+
+    public KeyPressEvent KeyPressEvent { get; private set; }
 }
