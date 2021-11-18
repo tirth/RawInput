@@ -1,6 +1,6 @@
-﻿using System.Globalization;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace RawInput;
 
@@ -55,82 +55,128 @@ static public class Win32
     internal const int SC_SHIFT_L = 0x2a;
     internal const int RIM_INPUT = 0x00;
 
-    public static void DeviceAudit()
+    public static void DeviceAudit(string outputPath = "device_info.json")
     {
-        using var file = new FileStream("DeviceAudit.txt", FileMode.Create, FileAccess.Write);
-        using var sw = new StreamWriter(file);
+        File.WriteAllText(outputPath, GetDevices().Values.ToList().JsonStr());
+    }
 
-        var keyboardNumber = 0;
-        uint deviceCount = 0;
+    public static Dictionary<IntPtr, DeviceInformation> GetDevices()
+    {
+        var devices = new Dictionary<IntPtr, DeviceInformation>();
+
         var dwSize = Marshal.SizeOf(typeof(Rawinputdevicelist));
 
-        if (Win32Helpers.GetRawInputDeviceList(IntPtr.Zero, ref deviceCount, (uint)dwSize) == 0)
+        // get device count
+        uint deviceCount = 0;
+        if (Win32Helpers.GetRawInputDeviceList(IntPtr.Zero, ref deviceCount, (uint)dwSize) != 0)
+            throw new Win32Exception(Marshal.GetLastWin32Error());
+
+        Trace.WriteLine($"device count: {deviceCount}");
+
+        // read list
+        var pRawInputDeviceList = Marshal.AllocHGlobal((int)(dwSize * deviceCount));
+        var readIntoList = Win32Helpers.GetRawInputDeviceList(pRawInputDeviceList, ref deviceCount, (uint)dwSize);
+
+        Trace.WriteLine($"read into list: {readIntoList}");
+
+        var keyboardNumber = 0;
+
+        var globalDevice = new DeviceInformation
         {
-            var pRawInputDeviceList = Marshal.AllocHGlobal((int)(dwSize * deviceCount));
-            Win32Helpers.GetRawInputDeviceList(pRawInputDeviceList, ref deviceCount, (uint)dwSize);
+            Name = "Global Keyboard",
+            Type = Win32.GetDeviceType(DeviceType.RimTypekeyboard),
+            Description = "Fake Keyboard. Some keys (ZOOM, MUTE, VOLUMEUP, VOLUMEDOWN) are sent to rawinput with a handle of zero.",
+            Source = $"Keyboard_{keyboardNumber++:D2}"
+        };
 
-            for (var i = 0; i < deviceCount; i++)
+        devices.Add(IntPtr.Zero, globalDevice);
+
+        for (var i = 0; i < deviceCount; i++)
+        {
+            // On Window 8 64bit when compiling against .Net > 3.5 using .ToInt32 you will generate an arithmetic overflow. Leave as it is for 32bit/64bit applications
+            if (Marshal.PtrToStructure(new IntPtr(pRawInputDeviceList.ToInt64() + dwSize * i), typeof(Rawinputdevicelist)) is not Rawinputdevicelist rawInputDevice)
             {
-                uint pcbSize = 0;
-
-                // On Window 8 64bit when compiling against .Net > 3.5 using .ToInt32 you will generate an arithmetic overflow. Leave as it is for 32bit/64bit applications
-                var rid = (Rawinputdevicelist)Marshal.PtrToStructure(new IntPtr(pRawInputDeviceList.ToInt64() + dwSize * i), typeof(Rawinputdevicelist));
-                Win32Helpers.GetRawInputDeviceInfo(rid.hDevice, RawInputDeviceInfo.RIDI_DEVICENAME, IntPtr.Zero, ref pcbSize);
-
-                if (pcbSize <= 0)
-                {
-                    sw.WriteLine("pcbSize: " + pcbSize);
-                    sw.WriteLine(Marshal.GetLastWin32Error());
-                    return;
-                }
-
-                var size = (uint)Marshal.SizeOf(typeof(DeviceInfo));
-                var di = new DeviceInfo { Size = Marshal.SizeOf(typeof(DeviceInfo)) };
-
-                if (Win32Helpers.GetRawInputDeviceInfo(rid.hDevice, (uint)RawInputDeviceInfo.RIDI_DEVICEINFO, ref di, ref size) <= 0)
-                {
-                    sw.WriteLine(Marshal.GetLastWin32Error());
-                    return;
-                }
-
-                var pData = Marshal.AllocHGlobal((int)pcbSize);
-                Win32Helpers.GetRawInputDeviceInfo(rid.hDevice, RawInputDeviceInfo.RIDI_DEVICENAME, pData, ref pcbSize);
-                var deviceName = Marshal.PtrToStringAnsi(pData);
-
-                if (rid.dwType == DeviceType.RimTypekeyboard || rid.dwType == DeviceType.RimTypeHid)
-                {
-                    var deviceDesc = GetDeviceDescription(deviceName);
-
-                    var dInfo = new KeyPressEvent
-                    {
-                        DeviceName = Marshal.PtrToStringAnsi(pData),
-                        DeviceHandle = rid.hDevice,
-                        DeviceType = GetDeviceType(rid.dwType),
-                        Name = deviceDesc,
-                        Source = keyboardNumber++.ToString(CultureInfo.InvariantCulture)
-                    };
-
-                    sw.WriteLine(dInfo.ToString());
-                    sw.WriteLine(di.ToString());
-                    sw.WriteLine(di.KeyboardInfo.ToString());
-                    sw.WriteLine(di.HIDInfo.ToString());
-                    //sw.WriteLine(di.MouseInfo.ToString());
-                    sw.WriteLine("=========================================================================================================");
-                }
-
-                Marshal.FreeHGlobal(pData);
+                Trace.WriteLine($"ERROR marshalling device {i} to structure");
+                continue;
             }
 
-            Marshal.FreeHGlobal(pRawInputDeviceList);
+            uint pcbSize = 0;
 
-            sw.Flush();
-            sw.Close();
-            file.Close();
+            var pcbSizeResult = Win32Helpers.GetRawInputDeviceInfo(rawInputDevice.hDevice, RawInputDeviceInfo.RIDI_DEVICENAME, IntPtr.Zero, ref pcbSize);
 
-            return;
+            if (pcbSizeResult != 0)
+            {
+                Trace.WriteLine($"ERROR getting pcb size for device {i}, got {pcbSizeResult}, {Marshal.GetLastWin32Error()}");
+                continue;
+            }
+
+            if (pcbSize <= 0)
+            {
+                Trace.WriteLine($"ERROR getting pcb size for device {i}, got {pcbSize}, {Marshal.GetLastWin32Error()}");
+                continue;
+            }
+
+            var deviceInfoSize = (uint)Marshal.SizeOf(typeof(DeviceInfo));
+            var deviceInfo = new DeviceInfo 
+            { 
+                Size = (int)deviceInfoSize 
+            };
+
+            var deviceInfoResult = Win32Helpers.GetRawInputDeviceInfo(rawInputDevice.hDevice, (uint)RawInputDeviceInfo.RIDI_DEVICEINFO, ref deviceInfo, ref deviceInfoSize);
+            if (deviceInfoResult <= 0)
+            {
+                Trace.WriteLine($"ERROR getting device info for device {i}, got {deviceInfoResult}, {Marshal.GetLastWin32Error()}");
+                continue;
+            }
+
+            Trace.WriteLine($"{deviceInfo}");
+            Trace.WriteLine($"{deviceInfo.HIDInfo}");
+            Trace.WriteLine($"{deviceInfo.KeyboardInfo}");
+
+            var deviceNamePtr = Marshal.AllocHGlobal((int)pcbSize);
+
+            var deviceNameResult = Win32Helpers.GetRawInputDeviceInfo(rawInputDevice.hDevice, RawInputDeviceInfo.RIDI_DEVICENAME, deviceNamePtr, ref pcbSize);
+            if (deviceNameResult <= 0)
+            {
+                Trace.WriteLine($"ERROR getting device name for device {i}, got {deviceNameResult}, {Marshal.GetLastWin32Error()}");
+                continue;
+            }
+
+            var deviceName = Marshal.PtrToStringAnsi(deviceNamePtr);
+            if (string.IsNullOrEmpty(deviceName))
+            {
+                Trace.WriteLine($"ERROR getting device name for device {i}, {Marshal.GetLastWin32Error()}");
+                continue;
+            }
+
+            Marshal.FreeHGlobal(deviceNamePtr);
+
+            if (rawInputDevice.dwType == DeviceType.RimTypemouse)
+            {
+                Trace.WriteLine($"skipping mouse");
+                continue;
+            }
+
+            var deviceInformation = new DeviceInformation
+            {
+                Name = deviceName,
+                Type = GetDeviceType(rawInputDevice.dwType),
+                Description = GetDeviceDescription(deviceName),
+                Source = $"Keyboard_{keyboardNumber++:D2}"
+            };
+
+            Trace.WriteLine($"device: {deviceInformation}");
+
+            // TODO: overwrite entry instead?
+            if (!devices.ContainsKey(rawInputDevice.hDevice))
+                devices.Add(rawInputDevice.hDevice, deviceInformation);
+
+            Trace.WriteLine("========================");
         }
 
-        throw new Win32Exception(Marshal.GetLastWin32Error());
+        Marshal.FreeHGlobal(pRawInputDeviceList);
+
+        return devices;
     }
 
     public static string GetDeviceType(uint device) => device switch
@@ -143,22 +189,21 @@ static public class Win32
 
     public static string GetDeviceDescription(string device)
     {
-        string deviceDesc;
         try
         {
-            var deviceKey = RegistryAccess.GetDeviceKey(device);
-            deviceDesc = deviceKey.GetValue("DeviceDesc").ToString();
-            deviceDesc = deviceDesc.Substring(deviceDesc.IndexOf(';') + 1);
+            var desc = RegistryAccess.GetDeviceKey(device)?.GetValue("DeviceDesc")?.ToString();
+            if (string.IsNullOrEmpty(desc))
+                return "Unknown";
+
+            return desc[(desc.IndexOf(';') + 1)..];
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            deviceDesc = "Device is malformed unable to look up in the registry";
+            return $"Device is malformed unable to look up in the registry: {e.Message}";
         }
 
         //var deviceClass = RegistryAccess.GetClassType(deviceKey.GetValue("ClassGUID").ToString());
         //isKeyboard = deviceClass.ToUpper().Equals( "KEYBOARD" );
-
-        return deviceDesc;
     }
 
     //public static bool InputInForeground(IntPtr wparam)

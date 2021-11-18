@@ -26,7 +26,7 @@ public struct DeviceInfoMouse
     public uint NumberOfButtons;            // Number of buttons for the mouse
     public uint SampleRate;                 // Number of data points per second.
     public bool HasHorizontalWheel;         // True is mouse has wheel for horizontal scrolling else false.
-                                            // ReSharper restore MemberCanBePrivate.Global
+
     public override string ToString() 
         => $"MouseInfo\n Id: {Id}\n NumberOfButtons: {NumberOfButtons}\n SampleRate: {SampleRate}\n HorizontalWheel: {HasHorizontalWheel}\n";
 }
@@ -54,15 +54,6 @@ public struct DeviceInfoHid
 
     public override string ToString() 
         => $"HidInfo\n VendorID: {VendorID}\n ProductID: {ProductID}\n VersionNumber: {VersionNumber}\n UsagePage: {UsagePage}\n Usage: {Usage}\n";
-}
-
-public struct BroadcastDeviceInterface
-{
-    public int DbccSize;
-    public BroadcastDeviceType BroadcastDeviceType;
-    public int DbccReserved;
-    public Guid DbccClassguid;
-    public char DbccName;
 }
 
 [StructLayout(LayoutKind.Sequential)]

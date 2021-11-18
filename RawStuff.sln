@@ -1,19 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31911.260
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawInput", "RawInput\RawInput.csproj", "{9284E61A-7FB9-4167-8003-84BD4AEEA63F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RawInput", "RawInput\RawInput.csproj", "{9284E61A-7FB9-4167-8003-84BD4AEEA63F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Keyboard", "Keyboard\Keyboard.csproj", "{DFC73F2A-BC11-4549-B026-225F3AA4717D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Keyboard", "Keyboard\Keyboard.csproj", "{DFC73F2A-BC11-4549-B026-225F3AA4717D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawInputTests", "RawInputTests\RawInputTests.csproj", "{7B869CD1-F62A-4B83-80CE-CCE2991D653B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9284E61A-7FB9-4167-8003-84BD4AEEA63F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -24,5 +23,15 @@ Global
 		{DFC73F2A-BC11-4549-B026-225F3AA4717D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFC73F2A-BC11-4549-B026-225F3AA4717D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFC73F2A-BC11-4549-B026-225F3AA4717D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B869CD1-F62A-4B83-80CE-CCE2991D653B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B869CD1-F62A-4B83-80CE-CCE2991D653B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B869CD1-F62A-4B83-80CE-CCE2991D653B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B869CD1-F62A-4B83-80CE-CCE2991D653B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A24EB6A9-23D5-41A7-89E4-CA856DD09410}
 	EndGlobalSection
 EndGlobal

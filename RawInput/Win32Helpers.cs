@@ -2,7 +2,7 @@
 
 namespace RawInput;
 
-public static class Win32Helpers
+internal static class Win32Helpers
 {
     [DllImport("user32.dll", SetLastError = true)]
     internal static extern int GetRawInputData(IntPtr hRawInput, DataCommand command, [Out] out InputData buffer, [In, Out] ref int size, int cbSizeHeader);
@@ -20,11 +20,5 @@ public static class Win32Helpers
     internal static extern uint GetRawInputDeviceList(IntPtr pRawInputDeviceList, ref uint numberDevices, uint size);
 
     [DllImport("user32.dll", SetLastError = true)]
-    public static extern IntPtr RegisterDeviceNotification(IntPtr hRecipient, IntPtr notificationFilter, DeviceNotification flags);
-
-    [DllImport("user32.dll", SetLastError = true)]
     internal static extern bool RegisterRawInputDevices(RawInputDevice[] pRawInputDevice, uint numberDevices, uint size);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool UnregisterDeviceNotification(IntPtr handle);
 }

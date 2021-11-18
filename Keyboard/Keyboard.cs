@@ -19,7 +19,7 @@ public partial class Keyboard : Form
         _rawInput = new RawInput(Handle, CaptureOnlyInForeground);
 
         _rawInput.AddMessageFilter();   // Adding a message filter will cause keypresses to be handled
-        Win32.DeviceAudit();            // Writes a file DeviceAudit.txt to the current directory
+        Win32.DeviceAudit();            // Writes a file device_info.json to the current directory
 
         _rawInput.KeyPressed += OnKeyPressed;
     }
@@ -27,13 +27,13 @@ public partial class Keyboard : Form
     private void OnKeyPressed(object sender, RawInputEventArg e)
     {
         lbHandle.Text = e.KeyPressEvent.DeviceHandle.ToString();
-        lbType.Text = e.KeyPressEvent.DeviceType;
-        lbName.Text = e.KeyPressEvent.DeviceName;
-        lbDescription.Text = e.KeyPressEvent.Name;
+        lbType.Text = e.KeyPressEvent.DeviceInformation.Type;
+        lbName.Text = e.KeyPressEvent.DeviceInformation.Name;
+        lbDescription.Text = e.KeyPressEvent.DeviceInformation.Description;
         lbKey.Text = e.KeyPressEvent.VKey.ToString(CultureInfo.InvariantCulture);
         lbNumKeyboards.Text = _rawInput.NumberOfKeyboards.ToString(CultureInfo.InvariantCulture);
         lbVKey.Text = e.KeyPressEvent.VKeyName;
-        lbSource.Text = e.KeyPressEvent.Source;
+        lbSource.Text = e.KeyPressEvent.DeviceInformation.Source;
         lbKeyPressState.Text = e.KeyPressEvent.KeyPressState;
         lbMessage.Text = string.Format("0x{0:X4} ({0})", e.KeyPressEvent.Message);
 

@@ -1,18 +1,16 @@
 using System.Diagnostics;
-using System.Globalization;
-using System.ComponentModel;
 using System.Runtime.InteropServices;
 
 namespace RawInput;
 
 public sealed class RawKeyboard
 {
-    private readonly Dictionary<IntPtr, KeyPressEvent> _deviceList = new();
+    private readonly Dictionary<IntPtr, DeviceInformation> _deviceList = new();
+    public int NumberOfKeyboards => _deviceList.Count;
 
     public delegate void DeviceEventHandler(object sender, RawInputEventArg e);
     public event DeviceEventHandler? KeyPressed;
 
-    public int NumberOfKeyboards { get; private set; }
     private InputData _rawBuffer;
 
     private readonly object _padLock = new();
@@ -38,74 +36,13 @@ public sealed class RawKeyboard
         {
             _deviceList.Clear();
 
-            var keyboardNumber = 0;
-
-            var globalDevice = new KeyPressEvent
+            foreach (var (deviceHandle, deviceInfo) in Win32.GetDevices())
             {
-                DeviceName = "Global Keyboard",
-                DeviceHandle = IntPtr.Zero,
-                DeviceType = Win32.GetDeviceType(DeviceType.RimTypekeyboard),
-                Name = "Fake Keyboard. Some keys (ZOOM, MUTE, VOLUMEUP, VOLUMEDOWN) are sent to rawinput with a handle of zero.",
-                Source = keyboardNumber++.ToString(CultureInfo.InvariantCulture)
-            };
-
-            _deviceList.Add(globalDevice.DeviceHandle, globalDevice);
-
-            var numberOfDevices = 0;
-            uint deviceCount = 0;
-            var dwSize = Marshal.SizeOf(typeof(Rawinputdevicelist));
-
-            if (Win32Helpers.GetRawInputDeviceList(IntPtr.Zero, ref deviceCount, (uint)dwSize) == 0)
-            {
-                var pRawInputDeviceList = Marshal.AllocHGlobal((int)(dwSize * deviceCount));
-                Win32Helpers.GetRawInputDeviceList(pRawInputDeviceList, ref deviceCount, (uint)dwSize);
-
-                for (var i = 0; i < deviceCount; i++)
-                {
-                    uint pcbSize = 0;
-
-                    // On Window 8 64bit when compiling against .Net > 3.5 using .ToInt32 you will generate an arithmetic overflow. Leave as it is for 32bit/64bit applications
-                    var rid = (Rawinputdevicelist)Marshal.PtrToStructure(new IntPtr(pRawInputDeviceList.ToInt64() + dwSize * i), typeof(Rawinputdevicelist));
-                    Win32Helpers.GetRawInputDeviceInfo(rid.hDevice, RawInputDeviceInfo.RIDI_DEVICENAME, IntPtr.Zero, ref pcbSize);
-
-                    if (pcbSize <= 0) continue;
-
-                    var pData = Marshal.AllocHGlobal((int)pcbSize);
-                    Win32Helpers.GetRawInputDeviceInfo(rid.hDevice, RawInputDeviceInfo.RIDI_DEVICENAME, pData, ref pcbSize);
-                    var deviceName = Marshal.PtrToStringAnsi(pData);
-
-                    if (rid.dwType == DeviceType.RimTypekeyboard || rid.dwType == DeviceType.RimTypeHid)
-                    {
-                        var deviceDesc = Win32.GetDeviceDescription(deviceName);
-
-                        var dInfo = new KeyPressEvent
-                        {
-                            DeviceName = Marshal.PtrToStringAnsi(pData),
-                            DeviceHandle = rid.hDevice,
-                            DeviceType = Win32.GetDeviceType(rid.dwType),
-                            Name = deviceDesc,
-                            Source = keyboardNumber++.ToString(CultureInfo.InvariantCulture)
-                        };
-
-                        if (!_deviceList.ContainsKey(rid.hDevice))
-                        {
-                            numberOfDevices++;
-                            _deviceList.Add(rid.hDevice, dInfo);
-                        }
-                    }
-
-                    Marshal.FreeHGlobal(pData);
-                }
-
-                Marshal.FreeHGlobal(pRawInputDeviceList);
-
-                NumberOfKeyboards = numberOfDevices;
-                Debug.WriteLine("EnumerateDevices() found {0} Keyboard(s)", NumberOfKeyboards);
-                return;
+                _deviceList.Add(deviceHandle, deviceInfo);
             }
-        }
 
-        throw new Win32Exception(Marshal.GetLastWin32Error());
+            Debug.WriteLine("EnumerateDevices() found {0} Keyboard(s)", NumberOfKeyboards);
+        }
     }
 
     public void ProcessRawInput(IntPtr hdevice)
@@ -118,7 +55,12 @@ public sealed class RawKeyboard
             return;
 
         var dwSize = 0;
-        Win32Helpers.GetRawInputData(hdevice, DataCommand.RID_INPUT, IntPtr.Zero, ref dwSize, Marshal.SizeOf(typeof(Rawinputheader)));
+        var dwSizeResult = Win32Helpers.GetRawInputData(hdevice, DataCommand.RID_INPUT, IntPtr.Zero, ref dwSize, Marshal.SizeOf(typeof(Rawinputheader)));
+        if (dwSizeResult != 0)
+        {
+            Debug.WriteLine("Error getting dw size");
+            return;
+        }
 
         if (dwSize != Win32Helpers.GetRawInputData(hdevice, DataCommand.RID_INPUT, out _rawBuffer, ref dwSize, Marshal.SizeOf(typeof(Rawinputheader))))
         {
@@ -130,17 +72,18 @@ public sealed class RawKeyboard
         int makeCode = _rawBuffer.data.keyboard.Makecode;
         int flags = _rawBuffer.data.keyboard.Flags;
 
-        if (virtualKey == Win32.KEYBOARD_OVERRUN_MAKE_CODE) return;
+        if (virtualKey == Win32.KEYBOARD_OVERRUN_MAKE_CODE) 
+            return;
 
         var isE0BitSet = (flags & Win32.RI_KEY_E0) != 0;
 
-        KeyPressEvent keyPressEvent;
+        DeviceInformation deviceInfo;
 
         if (_deviceList.ContainsKey(_rawBuffer.header.hDevice))
         {
             lock (_padLock)
             {
-                keyPressEvent = _deviceList[_rawBuffer.header.hDevice];
+                deviceInfo = _deviceList[_rawBuffer.header.hDevice];
             }
         }
         else
@@ -151,10 +94,15 @@ public sealed class RawKeyboard
 
         var isBreakBitSet = (flags & Win32.RI_KEY_BREAK) != 0;
 
-        keyPressEvent.KeyPressState = isBreakBitSet ? "BREAK" : "MAKE";
-        keyPressEvent.Message = _rawBuffer.data.keyboard.Message;
-        keyPressEvent.VKeyName = KeyMapper.GetKeyName(VirtualKeyCorrection(virtualKey, isE0BitSet, makeCode)).ToUpper();
-        keyPressEvent.VKey = virtualKey;
+        var keyPressEvent = new KeyPressEvent
+        {
+            DeviceHandle = _rawBuffer.header.hDevice,
+            DeviceInformation = deviceInfo,
+            KeyPressState = isBreakBitSet ? "BREAK" : "MAKE",
+            Message = _rawBuffer.data.keyboard.Message,
+            VKeyName = KeyMapper.GetKeyName(VirtualKeyCorrection(virtualKey, isE0BitSet, makeCode)).ToUpper(),
+            VKey = virtualKey
+        };
 
         KeyPressed?.Invoke(this, new RawInputEventArg(keyPressEvent));
     }
